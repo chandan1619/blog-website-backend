@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from server.routes import user,blog
+from server.routes import user,blog, comment
 from fastapi.middleware.cors import CORSMiddleware
 
 origins = [
@@ -11,6 +11,7 @@ def create_app():
     app = FastAPI()
     app.include_router(user.router)
     app.include_router(blog.router)
+    app.include_router(comment.router)
     app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

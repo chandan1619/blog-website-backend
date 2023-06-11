@@ -1,14 +1,15 @@
 from pydantic import BaseModel
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from ..routes import SessionLocal
-from server.database.models.user import Blog
+from server.database.models.user import Blog, User
 from typing import List
 import os
 import uuid
 from starlette.responses import JSONResponse
 from fastapi.responses import FileResponse
 from typing import Optional
-
+from sqlalchemy import select
+from datetime import datetime
 
 
 
@@ -40,20 +41,65 @@ class BlogList(BlogBase):
     class Config:
         orm_mode = True
 
+class BlogListResponse(BlogBase):
+    id:int
+    name:str
+    author_id:int
+    date_added: Optional[datetime] = None
 
-@router.get('/blogs', response_model=List[BlogList])
+    class Config:
+        orm_mode = True
+
+
+
+@router.get('/blogs', response_model=List[BlogListResponse])
 def get_blogs():
     session = SessionLocal()
-    blogs = session.query(Blog).all()
-    return blogs
+    query = select(Blog.id, Blog.content, Blog.title, Blog.description, Blog.image,User.name, Blog.author_id, Blog.date_added)\
+    .join(User, Blog.author_id == User.id)
+    result = session.execute(query)
+    blogs = result.all()
 
-@router.get('/blogs/{blog_id}', response_model=BlogList)
+    blog_list = []
+
+    for blog in blogs:
+        blog_response = BlogListResponse(
+            id= blog.id,
+            content= blog.content,
+            description = blog.description,
+            title = blog.title,
+            name = blog.name,
+            image = blog.image,
+            author_id = blog.author_id,
+            date_added = blog.date_added
+        )
+        blog_list.append(blog_response)
+    return blog_list
+
+@router.get('/blogs/{blog_id}', response_model=BlogListResponse)
 def get_blog(blog_id: int):
     session = SessionLocal()
-    blog = session.query(Blog).get(blog_id)
-    if not blog:
+    query = select(Blog.id, Blog.content, Blog.title, Blog.description, Blog.image,User.name, Blog.author_id, Blog.date_added)\
+    .join(User, Blog.author_id == User.id)\
+    .filter(Blog.id == blog_id)
+    result = session.execute(query)
+    blogs = result.first()
+    if not blogs:
         raise HTTPException(status_code=404, detail='Blog not found')
-    return blog
+    
+    
+    blog_response = BlogListResponse(
+            id= blogs.id,
+            content= blogs.content,
+            description = blogs.description,
+            title = blogs.title,
+            name = blogs.name,
+            image = blogs.image,
+            author_id = blogs.author_id,
+            date_added = blogs.date_added
+    )
+    return blog_response
+    
 
 @router.post('/blogs', response_model=BlogList)
 def create_blog(blog: BlogCreate):

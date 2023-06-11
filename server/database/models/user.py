@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, String , ForeignKey, Text
+from sqlalchemy import Column, Integer, String , ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
+
 
 Base = declarative_base()
 
@@ -21,6 +23,7 @@ class Blog(Base):
     title = Column(String, index=True)
     description = Column(String)
     content = Column(Text)
+    date_added = Column(DateTime, default=datetime.utcnow)  # Add the date_added column
     author_id = Column(Integer, ForeignKey('users.id'))
     category_id = Column(Integer, ForeignKey('blog_categories.id'))
     comments = relationship('Comment', backref='blog')
@@ -29,6 +32,7 @@ class Comment(Base):
     __tablename__ = 'comments'
     id = Column(Integer, primary_key=True)
     content = Column(String)
+    date_added = Column(DateTime, default=datetime.utcnow)  # Add the date_added column
     user_id = Column(Integer, ForeignKey('users.id'))
     blog_id = Column(Integer, ForeignKey('blogs.id'))
 

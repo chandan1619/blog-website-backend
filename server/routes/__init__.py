@@ -11,7 +11,7 @@ db_url = config.get('alembic', 'sqlalchemy.url')
 
 
 
-engine = create_engine(db_url, echo=True)
+engine = create_engine(db_url, echo=True,  pool_size=20)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
