@@ -50,6 +50,37 @@ class BlogListResponse(BlogBase):
     class Config:
         orm_mode = True
 
+class BlogSchema(BaseModel):
+    id:int
+    title:str
+    description:str
+    content:str
+    date_added: Optional[datetime] = None
+
+@router.get("/blogs/all/search", response_model = List[BlogSchema])
+def search_posts(query: str):
+    db = SessionLocal()
+    matching_posts = db.query(Blog.id, Blog.title, Blog.description, Blog.content, Blog.date_added).filter(
+        (Blog.title.ilike(f"%{query}%")) | (Blog.description.ilike(f"%{query}%")) | (Blog.content.ilike(f"%{query}%"))
+    ).all()
+    db.close()
+
+    if not matching_posts:
+        return []
+
+    blog_list = []
+
+    for blog in matching_posts:
+        blog_response = BlogSchema(
+            id= blog.id,
+            content= blog.content,
+            description = blog.description,
+            title = blog.title,
+            date_added= blog.date_added
+        )
+        blog_list.append(blog_response)
+    return blog_list
+    
 
 
 @router.get('/blogs', response_model=List[BlogListResponse])
