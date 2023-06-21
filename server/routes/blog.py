@@ -187,7 +187,7 @@ async def upload_file(file: UploadFile = File(...)):
         f.write(await file.read())
 
     # Create the URL for the uploaded file
-    base_url = "http://localhost:8000"  # Change this to your server's base URL
+    base_url = "https://with-docker-api.onrender.com"  # Change this to your server's base URL
     file_url = f"{base_url}/images/{unique_filename}"
 
     print(file_url)
