@@ -1,11 +1,11 @@
+from datetime import datetime
+from typing import List, Optional
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from ..routes import SessionLocal
-from typing import List, Optional
-from sqlalchemy import select
-from datetime import datetime
-
+from server import SessionLocal
 from server.database.models.user import Comment, User
+from sqlalchemy import select
 
 router = APIRouter()
 

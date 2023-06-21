@@ -1,11 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from passlib.hash import bcrypt
-from ..routes import SessionLocal
-
-
-
-
+from pydantic import BaseModel
+from server import SessionLocal
 from server.database.models.user import User
 
 router = APIRouter()

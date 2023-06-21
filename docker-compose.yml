@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    environment:
+      - POSTGRES_USER=post_db_vpw6_user
+      - POSTGRES_PASSWORD=N8zrJLeHDrDTDGrpuHXCXJdz3ALKj9T5
+      - POSTGRES_DB=post_db_vpw6
+    depends_on:
+      - db
+    volumes:
+      - ./server:/app/server
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+
+  db:
+    image: postgres:13
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=blog
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
