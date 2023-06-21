@@ -14,20 +14,17 @@ from starlette.responses import JSONResponse
 router = APIRouter()
 
 class BlogBase(BaseModel):
-    image: str
     title: str
     description: str
     content: str
 
 class BlogCreate(BaseModel):
-    image: str
     title: str
     description: str
     content: str
     author_id: int
 
 class BlogUpdate(BaseModel):
-    image: Optional[str]
     title: str
     description: str
     content: str
@@ -84,7 +81,7 @@ def search_posts(query: str):
 @router.get('/blogs', response_model=List[BlogListResponse])
 def get_blogs():
     session = SessionLocal()
-    query = select(Blog.id, Blog.content, Blog.title, Blog.description, Blog.image,User.name, Blog.author_id, Blog.date_added)\
+    query = select(Blog.id, Blog.content, Blog.title, Blog.description,User.name, Blog.author_id, Blog.date_added)\
     .join(User, Blog.author_id == User.id)
     result = session.execute(query)
     blogs = result.all()
@@ -98,7 +95,6 @@ def get_blogs():
             description = blog.description,
             title = blog.title,
             name = blog.name,
-            image = blog.image,
             author_id = blog.author_id,
             date_added = blog.date_added
         )
@@ -108,7 +104,7 @@ def get_blogs():
 @router.get('/blogs/{blog_id}', response_model=BlogListResponse)
 def get_blog(blog_id: int):
     session = SessionLocal()
-    query = select(Blog.id, Blog.content, Blog.title, Blog.description, Blog.image,User.name, Blog.author_id, Blog.date_added)\
+    query = select(Blog.id, Blog.content, Blog.title, Blog.description, User.name, Blog.author_id, Blog.date_added)\
     .join(User, Blog.author_id == User.id)\
     .filter(Blog.id == blog_id)
     result = session.execute(query)
@@ -123,7 +119,6 @@ def get_blog(blog_id: int):
             description = blogs.description,
             title = blogs.title,
             name = blogs.name,
-            image = blogs.image,
             author_id = blogs.author_id,
             date_added = blogs.date_added
     )
@@ -150,9 +145,6 @@ def update_blog(blog_id: int, blog: BlogUpdate):
     if not db_blog:
         raise HTTPException(status_code=404, detail='Blog not found')
     
-    if blog.image is None:
-        # Preserve the old value of the image field
-        blog.image = db_blog.image
     for field, value in blog:
         setattr(db_blog, field, value)
     session.commit()
