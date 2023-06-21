@@ -1,9 +1,10 @@
 from fastapi import FastAPI
-from server.routes import user,blog, comment
 from fastapi.middleware.cors import CORSMiddleware
+from server.routes import blog, comment, user
 
 origins = [
     "http://localhost:3000",  # Add the origin URL of your frontend application
+    "https://web-dzlx.onrender.com"
 ]
 
 
