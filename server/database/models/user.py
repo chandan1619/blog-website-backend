@@ -26,7 +26,17 @@ class Blog(Base):
     date_added = Column(DateTime, default=datetime.utcnow)  # Add the date_added column
     author_id = Column(Integer, ForeignKey('users.id'))
     category_id = Column(Integer, ForeignKey('blog_categories.id'))
-    comments = relationship('Comment', backref='blog')
+    comments = relationship('Comment', backref='blog', cascade="all, delete")
+    tags = relationship('Tag', back_populates='blog', cascade="all, delete")
+
+
+class Tag(Base):
+    __tablename__ = 'tags'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255))
+    blog_id = Column(Integer, ForeignKey('blogs.id', ondelete="CASCADE"))
+
+    blog = relationship('Blog', back_populates='tags')
 
 class Comment(Base):
     __tablename__ = 'comments'
