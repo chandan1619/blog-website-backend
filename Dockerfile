@@ -36,4 +36,4 @@ EXPOSE 8000
 
 # Run the FastAPI application using uvicorn
 # Run the migrations and start the application
-CMD alembic upgrade head && python main.py
+CMD python main.py
