@@ -22,9 +22,9 @@ services:
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=admin123
-      - POSTGRES_DB=blog
+      - POSTGRES_USER=blog_rkmd_user
+      - POSTGRES_PASSWORD=U4lUULVzC2tw7OQIStwF3aZm3ruT5YPk
+      - POSTGRES_DB=blog_rkmd
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
