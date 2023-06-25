@@ -278,9 +278,10 @@ def update_blog(blog_id: int, blog: BlogUpdate):
         title=db_blog.title,
         description=db_blog.description,
         content=db_blog.content,
-        category=db_blog.category_id
+        category_id = db_blog.category_id,
+        date_added= db_blog.date_added,
+        author_id= db_blog.author_id
     )
-
     return response
 
 
