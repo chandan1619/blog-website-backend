@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from server.routes import blog, comment, user
+from server.routes import blog, comment, user,search,similarpost
 
 origins = [
     "http://localhost:3000",  # Add the origin URL of your frontend application
@@ -13,6 +13,8 @@ def create_app():
     app.include_router(user.router)
     app.include_router(blog.router)
     app.include_router(comment.router)
+    app.include_router(search.router)
+    app.include_router(similarpost.router)
     app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],

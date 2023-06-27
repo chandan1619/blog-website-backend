@@ -1,5 +1,3 @@
-import os
-import uuid
 from datetime import datetime
 from typing import List, Optional
 
@@ -7,7 +5,8 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from server import SessionLocal
-from server.database.models.user import Blog, User, BlogCategory, Tag
+from server.database.models.user import User
+from server.database.models.blog import Blog, BlogCategory, Tag
 from sqlalchemy import select
 from starlette.responses import JSONResponse
 from sqlalchemy.orm import joinedload
@@ -64,44 +63,6 @@ class BlogListResponse(BaseModel):
     class Config:
         orm_mode = True
 
-class BlogSchema(BaseModel):
-    id:int
-    title:str
-    description:str
-    content:str
-    date_added: Optional[datetime] = None
-
-class BlogCategoryRes(BaseModel):
-    name : str
-
-class BlogCategoryList(BlogCategoryRes):
-    id : int
-
-@router.get("/blogs/all/search", response_model = List[BlogSchema])
-def search_posts(query: str):
-    db = SessionLocal()
-    matching_posts = db.query(Blog.id, Blog.title, Blog.description, Blog.content, Blog.date_added).filter(
-        (Blog.title.ilike(f"%{query}%")) | (Blog.description.ilike(f"%{query}%")) | (Blog.content.ilike(f"%{query}%"))
-    ).all()
-    db.close()
-
-    if not matching_posts:
-        return []
-
-    blog_list = []
-
-    for blog in matching_posts:
-        blog_response = BlogSchema(
-            id= blog.id,
-            content= blog.content,
-            description = blog.description,
-            title = blog.title,
-            date_added= blog.date_added
-        )
-        blog_list.append(blog_response)
-    return blog_list
-    
-
 
 @router.get('/blogs', response_model=List[BlogListResponse])
 def get_blogs():
@@ -156,25 +117,7 @@ def get_blog(blog_id: int):
     )
 
     return blog_response
-    # query = select(Blog.id, Blog.content, Blog.title, Blog.description, User.name, Blog.author_id, Blog.date_added)\
-    # .join(User, Blog.author_id == User.id)\
-    # .filter(Blog.id == blog_id)
-    # result = session.execute(query)
-    # blogs = result.first()
-    # if not blogs:
-    #     raise HTTPException(status_code=404, detail='Blog not found')
     
-    
-    # blog_response = BlogListResponse(
-    #         id= blogs.id,
-    #         content= blogs.content,
-    #         description = blogs.description,
-    #         title = blogs.title,
-    #         name = blogs.name,
-    #         author_id = blogs.author_id,
-    #         date_added = blogs.date_added
-    # )
-    # return blog_response
     
 
 @router.post('/blogs', response_model=BlogList)
@@ -219,29 +162,7 @@ def create_blog(blog: BlogCreate):
     return blog_list
   
 
-@router.post('/category', response_model= BlogCategoryList)
-def create_Category(category: BlogCategoryRes):
-    session = SessionLocal()
-    cat = category.dict()
-    cat_db = BlogCategory(**cat)
-    session.add(cat_db)
-    session.commit()
-    session.refresh(cat_db)
-    response = BlogCategoryList(id=cat_db.id, **cat)
-    return response
 
-@router.get('/categories', response_model= List[BlogCategoryList])
-def get_categories():
-    session = SessionLocal()
-    categories = session.query(BlogCategory).all()
-
-    # Create an instance of BlogCategoryList and set the categories as data
-    response = []
-    for category in categories:
-        category_data = BlogCategoryList(id=category.id, name=category.name)
-        response.append(category_data)
-
-    return response
 
 
 @router.put('/blogs/{blog_id}', response_model=BlogList)
@@ -329,30 +250,4 @@ def delete_blog(blog_id: int):
 #     return FileResponse(f"{folder_path}/{image_name}")
 
 
-@router.get('/matchingpost/{id}', response_model=List[BlogList])
-def get_matching_blogs(id: int):
-    session = SessionLocal()
-    
-    # Fetch the blog with the provided ID
-    blog = session.query(Blog).filter(Blog.id == id).first()
-    if not blog:
-        raise HTTPException(status_code=404, detail="Blog not found")
 
-    # Fetch blogs with matching tags
-    matching_blogs = session.query(Blog).join(Tag).filter(Tag.name.in_([tag.name for tag in blog.tags])).filter(Blog.id != id).all()
-
-    # Create a list of BlogList instances from the matching blogs
-    response = []
-    for matching_blog in matching_blogs:
-        blog_data = BlogList(
-            id=matching_blog.id,
-            title=matching_blog.title,
-            description=matching_blog.description,
-            content=matching_blog.content,
-            category_id=matching_blog.category_id,
-            date_added=matching_blog.date_added,
-            author_id=matching_blog.author_id
-        )
-        response.append(blog_data)
-
-    return response

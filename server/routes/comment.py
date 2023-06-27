@@ -4,7 +4,8 @@ from typing import List, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from server import SessionLocal
-from server.database.models.user import Comment, User
+from server.database.models.user import User
+from server.database.models.blog import Comment
 from sqlalchemy import select
 
 router = APIRouter()
