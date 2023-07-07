@@ -5,11 +5,11 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from server import SessionLocal
-from server.database.models.user import User
 from server.database.models.blog import Blog, BlogCategory, Tag
+from server.database.models.user import User
 from sqlalchemy import select
-from starlette.responses import JSONResponse
 from sqlalchemy.orm import joinedload
+from starlette.responses import JSONResponse
 
 router = APIRouter()
 
@@ -36,12 +36,12 @@ def get_matching_blogs(id: int):
     if not blog:
         raise HTTPException(status_code=404, detail="Blog not found")
 
-    # Fetch blogs with matching tags
+    # Fetch up to 3 blogs with matching tags
     matching_blogs = session.query(Blog).join(Tag).filter(Tag.name.in_([tag.name for tag in blog.tags])).filter(Blog.id != id).all()
 
     # Create a list of BlogList instances from the matching blogs
     response = []
-    for matching_blog in matching_blogs:
+    for matching_blog in matching_blogs[0:3]:
         blog_data = BlogList(
             id=matching_blog.id,
             title=matching_blog.title,

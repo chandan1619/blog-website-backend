@@ -1,15 +1,15 @@
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from server import SessionLocal
-from server.database.models.user import User
 from server.database.models.blog import Blog, BlogCategory, Tag
+from server.database.models.user import User
 from sqlalchemy import select
-from starlette.responses import JSONResponse
 from sqlalchemy.orm import joinedload
+from starlette.responses import JSONResponse
 
 router = APIRouter()
 
@@ -65,10 +65,17 @@ class BlogListResponse(BaseModel):
 
 
 @router.get('/blogs', response_model=List[BlogListResponse])
-def get_blogs():
+def get_blogs(page: int = Query(1, gt=0), page_size: int = Query(10, gt=0, le=100)):
     session = SessionLocal()
-    query = select(Blog.id, Blog.content, Blog.title, Blog.description,User.name, Blog.author_id, Blog.date_added)\
-    .join(User, Blog.author_id == User.id)
+    query = select(Blog.id, Blog.content, Blog.title, Blog.description, User.name, Blog.author_id, Blog.date_added)\
+        .join(User, Blog.author_id == User.id)
+
+    # Calculate the offset based on the page number and page size
+    offset = (page - 1) * page_size
+
+    # Apply pagination to the query
+    query = query.offset(offset).limit(page_size)
+
     result = session.execute(query)
     blogs = result.all()
 
@@ -76,15 +83,15 @@ def get_blogs():
 
     for blog in blogs:
         blog_response = BlogListResponse(
-            id= blog.id,
-            content= blog.content,
-            description = blog.description,
-            title = blog.title,
-            name = blog.name,
-            author_id = blog.author_id,
-            date_added = blog.date_added,
+            id=blog.id,
+            content=blog.content,
+            description=blog.description,
+            title=blog.title,
+            name=blog.name,
+            author_id=blog.author_id,
+            date_added=blog.date_added,
             category_id=0,
-            tags = []
+            tags=[]
         )
         blog_list.append(blog_response)
     return blog_list
