@@ -1,9 +1,9 @@
-from sqlalchemy import Column, Integer, String , ForeignKey, Text, DateTime
-from sqlalchemy.orm import relationship
 from datetime import datetime
+
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import relationship
+
 from . import Base
-
-
 
 
 class Blog(Base):
@@ -16,6 +16,7 @@ class Blog(Base):
     date_added = Column(DateTime, default=datetime.utcnow)  # Add the date_added column
     author_id = Column(Integer, ForeignKey('users.id'))
     category_id = Column(Integer, ForeignKey('blog_categories.id'))
+    likes = Column(Integer, default=0)  # Add the likes column
     comments = relationship('Comment', backref='blog', cascade="all, delete")
     tags = relationship('Tag', back_populates='blog', cascade="all, delete")
 
