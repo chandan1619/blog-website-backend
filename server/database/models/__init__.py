@@ -1,3 +1,3 @@
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from . import base
+from . import blog
+from . import user

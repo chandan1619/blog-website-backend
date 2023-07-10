@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from server import SessionLocal
 from server.database.models.user import User
-from server.database.models.blog import Comment
+from server.database.models.blog import Comment, Blog
 from sqlalchemy import select
 
 router = APIRouter()
@@ -59,6 +59,13 @@ def get_comments(blog_id : int):
         comment_responses.append(comment_response)
 
     return comment_responses
+
+
+
+
+
+
+
 
 
 

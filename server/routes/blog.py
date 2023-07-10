@@ -59,6 +59,7 @@ class BlogListResponse(BaseModel):
     name: str
     author_id: int
     date_added: Optional[datetime] = None
+    likes : Optional[int]
 
     class Config:
         orm_mode = True
@@ -120,7 +121,8 @@ def get_blog(blog_id: int):
         tags=tag_names,
         name=blog.author.name,
         author_id=blog.author.id,
-        date_added=blog.date_added
+        date_added=blog.date_added,
+        likes = blog.likes
     )
 
     return blog_response

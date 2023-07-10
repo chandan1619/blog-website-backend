@@ -3,8 +3,7 @@ from datetime import datetime
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
-from . import Base
-
+from .base import Base
 
 class Blog(Base):
     __tablename__ = 'blogs'
